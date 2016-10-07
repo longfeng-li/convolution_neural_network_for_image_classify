@@ -1,0 +1,59 @@
+import math
+import random
+
+def conv2d(x, W):
+	return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+def max_pool_2x2(x):
+	return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+
+class ConvLayer(object):
+
+	def __init__(self, input_size, filter_size, output_size):
+		
+		self.input_size = input_size
+		self.filter_size = filter_size
+		self.output_size = output_size
+
+	def conv_net(self, X, Y):
+		
+		with tf.name_scope('first_conv'):
+			# define weights and biases
+			w_conv1 = tf.Variable(\
+				tf.truncated_normal([self.filter_size, self.filter_size, 3, 32],\
+				stddev=1.0 / math.sqrt(float(input_size))), name='first_weights')
+			b_conv1 = tf.Variable(tf.zeros([32]), name='first_biases')
+			
+			# set image size	
+			x_image = tf.reshape(x, [-1, 28, 28, 1])
+			
+			# compute first convolution layer
+			h_conv1 = tf.nn.relu(conv2d(x_image, w_conv1) + b_conv1)	
+			h_pool = max_pool_2x2(h_conv1)
+
+		with tf.name_scope('second_conv'):
+			# define weights and biases		
+			w_conv2 = tf.Variable(\
+				tf.truncated_normal([self.filter_size, self.filter_size, 3, 64],\
+				stddev=1.0 / math.sqrt(float(input_size))), name='second_weights')
+			b_conv2 = tf.Variable(tf.zeros([64]), name='second_biases')
+			
+			# compute second convolution layer
+			h_conv2 = tf.nn.relu(conv2d(h_pool1, w_conv2) + b_conv2)
+			h_pool2 = max_pool_2x2(h_conv2)
+
+		with tf.name_scope('fc'):
+			#define weights and biases
+			w_fc1 = weight_variable([8*8*64, 1024])
+			b_fc1 = bias_variable([1024])
+			
+			# compute fc layer
+			h_pool2_flat = tf.reshape(h_pool2, [none, 8*8*64])
+			h_fc1 = tf.nn.relu(tf.matmul(h_tool2_flat, w_fc1) + b_fc1)
+
+		with tf.name_scope('dropout'):
+			# compute dropout result
+			keep_prob = tf.placeholder(tf.float32)
+			h_fcl_drop = tf.nn.dropout(h_fc1, keep_prob)	 	
+		
+		with tf.name_scope('readout')				
